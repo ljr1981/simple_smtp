@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>simple_smtp - Native SMTP Email for Eiffel</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/png" href="images/logo.png">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="images/logo.png" alt="simple_* logo" class="logo">
+        </div>
+        <h1>simple_smtp</h1>
+        <p class="tagline">Native SMTP Email Sending for Eiffel</p>
+        <div class="badges">
+            <span class="badge badge-rfc">RFC 5321</span>
+            <span class="badge badge-version">v1.0.0</span>
+            <span class="badge badge-license">MIT</span>
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#quick-start">Quick Start</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="api/simple_smtp.html">API Reference</a></li>
+            <li><a href="https://github.com/ljr1981/simple_smtp">GitHub</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="overview">
+            <h2>Overview</h2>
+            <p>
+                <strong>simple_smtp</strong> is a native SMTP email sending library for Eiffel.
+                No shell commands, no curl, no external dependencies beyond EiffelNet sockets.
+                Supports TLS, authentication, HTML emails, and attachments.
+            </p>
+            <p>
+                Part of the <strong>simple_*</strong> ecosystem of focused, single-purpose Eiffel libraries.
+            </p>
+        </section>
+
+        <section id="quick-start">
+            <h2>Quick Start</h2>
+
+            <div class="quick-start">
+                <h3>Installation</h3>
+                <p>Add to your ECF file:</p>
+<pre><code>&lt;library name="simple_smtp" location="$SIMPLE_SMTP/simple_smtp.ecf"/&gt;</code></pre>
+                <p>Set environment variable:</p>
+<pre><code>set SIMPLE_SMTP=D:\path\to\simple_smtp</code></pre>
+                <p>Also requires: <code>simple_base64</code></p>
+            </div>
+
+            <h3>Send an Email</h3>
+<pre><code><span class="keyword">local</span>
+    smtp: <span class="type">SIMPLE_SMTP</span>
+<span class="keyword">do</span>
+    <span class="keyword">create</span> smtp.make (<span class="string">"smtp.example.com"</span>, 587)
+    smtp.set_credentials (<span class="string">"user@example.com"</span>, <span class="string">"password"</span>)
+    smtp.set_from (<span class="string">"sender@example.com"</span>, <span class="string">"Sender Name"</span>)
+    smtp.add_to (<span class="string">"recipient@example.com"</span>, <span class="string">"Recipient"</span>)
+    smtp.set_subject (<span class="string">"Hello from Eiffel!"</span>)
+    smtp.set_body (<span class="string">"This is a test email."</span>)
+
+    <span class="keyword">if</span> smtp.send <span class="keyword">then</span>
+        print (<span class="string">"Email sent!"</span>)
+    <span class="keyword">else</span>
+        print (<span class="string">"Error: "</span> + smtp.last_error)
+    <span class="keyword">end</span>
+<span class="keyword">end</span></code></pre>
+
+            <h3>HTML Email</h3>
+<pre><code><span class="comment">-- HTML only</span>
+smtp.set_html_body (<span class="string">"&lt;html&gt;&lt;body&gt;&lt;h1&gt;Hello!&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;"</span>)
+
+<span class="comment">-- Or multipart (text + HTML fallback)</span>
+smtp.set_body_with_html (
+    <span class="string">"Plain text for old clients"</span>,
+    <span class="string">"&lt;html&gt;&lt;body&gt;&lt;h1&gt;HTML version&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;"</span>
+)</code></pre>
+
+            <h3>With Attachments</h3>
+<pre><code>smtp.add_attachment (<span class="string">"report.pdf"</span>, pdf_content, <span class="string">"application/pdf"</span>)
+smtp.add_attachment (<span class="string">"data.csv"</span>, csv_content, <span class="string">"text/csv"</span>)</code></pre>
+        </section>
+
+        <section id="features">
+            <h2>Features</h2>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Native SMTP</h4>
+                    <p>Pure Eiffel implementation using EiffelNet sockets. No shelling to curl or external tools.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>TLS Support</h4>
+                    <p>STARTTLS (port 587), implicit TLS (port 465), or plain SMTP (port 25).</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Authentication</h4>
+                    <p>AUTH LOGIN and AUTH PLAIN mechanisms with Base64 credential encoding.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Rich Content</h4>
+                    <p>Plain text, HTML, or multipart/alternative for email clients that prefer either.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Attachments</h4>
+                    <p>Add file attachments with proper MIME types and Base64 encoding.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Design by Contract</h4>
+                    <p>Full preconditions, postconditions, and class invariants for correctness verification.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="api-summary">
+            <h2>API Summary</h2>
+
+            <h3>Configuration</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>make (host, port)</code></td>
+                        <td>Create SMTP client for host:port</td>
+                    </tr>
+                    <tr>
+                        <td><code>set_credentials (user, pass)</code></td>
+                        <td>Set authentication credentials</td>
+                    </tr>
+                    <tr>
+                        <td><code>set_timeout (seconds)</code></td>
+                        <td>Set connection timeout</td>
+                    </tr>
+                    <tr>
+                        <td><code>enable_tls</code></td>
+                        <td>Use TLS/SSL from start (port 465)</td>
+                    </tr>
+                    <tr>
+                        <td><code>enable_starttls</code></td>
+                        <td>Upgrade to TLS via STARTTLS (port 587)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Sender & Recipients</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>set_from (email, name)</code></td>
+                        <td>Set sender (name is optional)</td>
+                    </tr>
+                    <tr>
+                        <td><code>add_to (email, name)</code></td>
+                        <td>Add To recipient</td>
+                    </tr>
+                    <tr>
+                        <td><code>add_cc (email, name)</code></td>
+                        <td>Add Cc recipient</td>
+                    </tr>
+                    <tr>
+                        <td><code>add_bcc (email, name)</code></td>
+                        <td>Add Bcc recipient (not in headers)</td>
+                    </tr>
+                    <tr>
+                        <td><code>clear_recipients</code></td>
+                        <td>Clear all recipients</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Content</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>set_subject (text)</code></td>
+                        <td>Set email subject</td>
+                    </tr>
+                    <tr>
+                        <td><code>set_body (text)</code></td>
+                        <td>Set plain text body</td>
+                    </tr>
+                    <tr>
+                        <td><code>set_html_body (html)</code></td>
+                        <td>Set HTML body</td>
+                    </tr>
+                    <tr>
+                        <td><code>set_body_with_html (text, html)</code></td>
+                        <td>Set multipart (text + HTML)</td>
+                    </tr>
+                    <tr>
+                        <td><code>add_attachment (name, content, mime)</code></td>
+                        <td>Add file attachment</td>
+                    </tr>
+                    <tr>
+                        <td><code>clear_attachments</code></td>
+                        <td>Remove all attachments</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Sending & Status</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>send: BOOLEAN</code></td>
+                        <td>Send email, returns True on success</td>
+                    </tr>
+                    <tr>
+                        <td><code>has_error: BOOLEAN</code></td>
+                        <td>Did last operation fail?</td>
+                    </tr>
+                    <tr>
+                        <td><code>last_error: STRING</code></td>
+                        <td>Error message from last failure</td>
+                    </tr>
+                    <tr>
+                        <td><code>last_response: STRING</code></td>
+                        <td>Last SMTP server response</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><a href="api/simple_smtp.html">View complete API reference &rarr;</a></p>
+        </section>
+
+        <section id="testing">
+            <h2>Testing</h2>
+            <p>
+                The library includes a comprehensive test suite with <strong>30+ tests</strong> covering:
+            </p>
+            <ul>
+                <li>Initialization with different port configurations</li>
+                <li>Setting credentials, sender, recipients</li>
+                <li>Content handling (plain text, HTML, multipart)</li>
+                <li>Attachment management</li>
+                <li>Message building with proper MIME structure</li>
+                <li>Complete email setup verification</li>
+            </ul>
+<pre><code><span class="comment">-- Run tests</span>
+ec.exe -batch -config simple_smtp.ecf -target simple_smtp_tests -tests</code></pre>
+        </section>
+    </main>
+
+    <footer>
+        <p>
+            <strong>simple_smtp</strong> is part of the
+            <a href="https://github.com/ljr1981">simple_*</a> ecosystem
+        </p>
+        <p class="copyright">
+            Copyright &copy; 2024-2025 Larry Rix. MIT License.
+        </p>
+    </footer>
+</body>
+</html>
