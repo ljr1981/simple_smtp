@@ -26,13 +26,14 @@ Add to your ECF:
 <library name="simple_smtp" location="$SIMPLE_SMTP\simple_smtp.ecf"/>
 ```
 
-Set environment variable:
+Set environment variables:
 ```
 SIMPLE_SMTP=D:\prod\simple_smtp
+SIMPLE_FOUNDATION_API=D:\prod\simple_foundation_api
 ```
 
 **Dependencies:**
-- simple_base64 (for attachment encoding and auth)
+- simple_foundation_api (for Base64 encoding and UUID generation)
 
 ## Usage
 
@@ -177,7 +178,7 @@ create smtp.make ("smtp.example.com", 25)
 - EiffelBase
 - EiffelNet (sockets)
 - EiffelTime
-- simple_base64 (for encoding)
+- simple_foundation_api (for Base64 encoding and UUID generation)
 
 ## License
 

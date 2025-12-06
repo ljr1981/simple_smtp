@@ -53,14 +53,13 @@ feature {NONE} -- Initialization
 			create attachment_names.make (5)
 			create attachment_contents.make (5)
 			create attachment_types.make (5)
-			create base64.make
+			create foundation.make
 			use_tls := (a_port = 465)
 			use_starttls := (a_port = 587)
 			timeout_seconds := 30
 			create last_response.make_empty
 			create last_error.make_empty
 			create internal_from_email.make_empty
-			create uuid.make
 			auth_method := Void -- Default: try LOGIN first
 		ensure
 			host_set: host = a_host
@@ -527,7 +526,7 @@ feature -- Message Building
 					Result.append ("Content-Transfer-Encoding: base64%R%N")
 					Result.append ("Content-Disposition: attachment; filename=%"" + attachment_names [i] + "%"%R%N")
 					Result.append ("%R%N")
-					Result.append (base64.encode (attachment_contents [i]) + "%R%N")
+					Result.append (foundation.base64_encode (attachment_contents [i]) + "%R%N")
 					i := i + 1
 				variant
 					attachment_count - i + 1
@@ -564,7 +563,7 @@ feature -- AUTH PLAIN Support
 			l_plain.append (a_user)
 			l_plain.append_character ('%U') -- NUL character
 			l_plain.append (a_pass)
-			Result := base64.encode (l_plain)
+			Result := foundation.base64_encode (l_plain)
 		ensure
 			result_not_void: Result /= Void
 			result_not_empty: not Result.is_empty
@@ -645,11 +644,8 @@ feature {NONE} -- Implementation
 	timeout_seconds: INTEGER
 			-- Connection timeout.
 
-	base64: SIMPLE_BASE64
-			-- Base64 encoder for attachments.
-
-	uuid: SIMPLE_UUID
-			-- UUID generator for MIME boundaries.
+	foundation: FOUNDATION
+			-- Foundation API for encoding and UUID generation.
 
 	perform_smtp_session (a_socket: NETWORK_STREAM_SOCKET): BOOLEAN
 			-- Perform the SMTP conversation. Returns True on success.
@@ -713,11 +709,11 @@ feature {NONE} -- Implementation
 			l_response := read_response (a_socket)
 			if l_response.starts_with ("334") then
 				-- Send username (base64)
-				send_command (a_socket, base64.encode (a_user))
+				send_command (a_socket, foundation.base64_encode (a_user))
 				l_response := read_response (a_socket)
 				if l_response.starts_with ("334") then
 					-- Send password (base64)
-					send_command (a_socket, base64.encode (a_pass))
+					send_command (a_socket, foundation.base64_encode (a_pass))
 					l_response := read_response (a_socket)
 					Result := l_response.starts_with ("235")
 					if not Result then
@@ -951,7 +947,7 @@ feature {NONE} -- Implementation
 	generate_boundary: STRING
 			-- Generate a unique MIME boundary using UUID v4.
 		do
-			Result := "----=_Part_" + uuid.new_v4_compact
+			Result := "----=_Part_" + foundation.new_uuid_compact
 		ensure
 			result_not_void: Result /= Void
 			result_not_empty: not Result.is_empty
@@ -1057,8 +1053,7 @@ invariant
 	bcc_names_exist: bcc_names /= Void
 	bcc_lists_match: bcc_emails.count = bcc_names.count
 	attachments_consistent: attachment_names.count = attachment_contents.count and attachment_contents.count = attachment_types.count
-	base64_exists: base64 /= Void
-	uuid_exists: uuid /= Void
+	foundation_exists: foundation /= Void
 	timeout_positive: timeout_seconds > 0
 	last_response_exists: last_response /= Void
 	last_error_exists: last_error /= Void
